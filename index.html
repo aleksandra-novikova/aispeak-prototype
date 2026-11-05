@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AISpeak — interactive prototype</title>
+<meta name="description" content="Interactive prototype of AISpeak, an AI-powered English learning app. Concept and design by Aleksandra Novikova.">
+<meta name="theme-color" content="#160E26">
+<link rel="icon" href="assets/blob-a.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0d0817}
+a{color:#BDF288}a:hover{color:#d6f9b3}
+.ais,.ais *{box-sizing:border-box}
+.ais{--bg:#160E26;--card:#2C243C;--card-a:rgba(44,36,60,.92);--field:#231B33;--text:#FFFFFF;--text-soft:#E4E2E8;--muted:#A7A4AD;--accent-text:#BDF288;--bar-soft:rgba(189,242,136,.35);--line:rgba(255,255,255,.12);--line-strong:rgba(255,255,255,.2);--chip:rgba(255,255,255,.06);--nav:#241C36;--scrim:rgba(22,14,38,.72);--danger:#FF8A80}
+.ais.light{--bg:#F5F2FA;--card:#FFFFFF;--card-a:rgba(255,255,255,.94);--field:#FFFFFF;--text:#160E26;--text-soft:#3A3349;--muted:#625C70;--accent-text:#2B1A4D;--bar-soft:rgba(43,26,77,.18);--line:rgba(22,14,38,.12);--line-strong:rgba(22,14,38,.22);--chip:rgba(22,14,38,.05);--nav:#FFFFFF;--scrim:rgba(22,14,38,.35);--danger:#B3261E}
+.ais.light img[style*="pointer-events: none"]{opacity:.3 !important}
+.ais.light [style*="background: var(--card)"],.ais.light [style*="background: var(--card-a)"]{box-shadow:0 2px 14px rgba(22,14,38,.07)}
+.nav-shape{filter:drop-shadow(0 -8px 18px rgba(0,0,0,.28))}
+.ais.light .nav-shape{filter:drop-shadow(0 -6px 16px rgba(22,14,38,.1))}
+.ais button{font-family:inherit;cursor:pointer}
+.ais input{font-family:inherit}
+.scroll{overflow-y:auto;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.btn-primary{background:#BDF288;color:#160E26;border:0;border-radius:999px;height:48px;padding:0 40px;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;transition:transform .15s ease,opacity .2s ease,box-shadow .2s ease;box-shadow:0 8px 24px rgba(189,242,136,.18)}
+.btn-primary:hover{box-shadow:0 10px 30px rgba(189,242,136,.32)}
+.btn-primary:active{transform:scale(.96)}
+.btn-primary:disabled{opacity:.3;cursor:default;box-shadow:none}
+.btn-ghost{background:var(--card-a);color:var(--text);border:1px solid rgba(140,190,70,.7);border-radius:12px;min-height:46px;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;transition:border-color .2s,background .2s}
+.btn-ghost:hover{border-color:#BDF288;background:var(--card)}
+.link{background:none;border:0;color:var(--accent-text);font-weight:700;padding:0;font-size:inherit}
+.icon-btn{background:none;border:0;color:var(--text);width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;padding:0}
+.icon-btn:hover{background:var(--chip)}
+.w{background:none;border:0;padding:0;color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;font:inherit;cursor:pointer}
+.w:hover{text-decoration-thickness:2px}
+.field{width:100%;height:52px;border-radius:14px;border:1px solid var(--line);background:var(--field);color:var(--text);font-size:15px;padding:0 16px;outline:none;transition:border-color .2s}
+.field:focus{border-color:#BDF288}
+.card-btn{background:none;border:0;padding:0;text-align:left;color:var(--text);width:100%;display:block}
+.card-btn img{transition:transform .4s ease}
+.card-btn:hover img{transform:scale(1.04)}
+.nav-btn{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:600;min-width:64px;min-height:48px;justify-content:center;padding:0}
+.blobs img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.blobs{animation:float 6s ease-in-out infinite}
+.blobs img:nth-child(1){animation:blobfade 9s ease-in-out infinite}
+.blobs img:nth-child(2){animation:blobfade 9s ease-in-out -3s infinite}
+.blobs img:nth-child(3){animation:blobfade 9s ease-in-out -6s infinite}
+.talking{animation:pulse 1.1s ease-in-out infinite}
+.mic-on{animation:ring 1.2s ease-out infinite}
+.fade{animation:fadeUp .4s ease both}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent-text);animation:dot 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+.bars span{display:inline-block;width:3px;margin:0 1px;border-radius:2px;background:var(--accent-text);animation:bar .9s ease-in-out infinite}
+.bars span:nth-child(2){animation-delay:.15s}.bars span:nth-child(3){animation-delay:.3s}.bars span:nth-child(4){animation-delay:.45s}
+@keyframes blobfade{0%,28%{opacity:1}38%,90%{opacity:0}100%{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-10px) rotate(5deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(189,242,136,.6)}100%{box-shadow:0 0 0 24px rgba(189,242,136,0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes dot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes bar{0%,100%{height:4px}50%{height:16px}}
+@keyframes prog{from{width:6%}to{width:100%}}
+</style>
+<style>
+html,body{height:100%}
+body{margin:0;background:#0d0817;overflow:hidden}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#phone{width:390px;height:844px;flex-shrink:0;transform-origin:center center;border-radius:44px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+body.fit-mobile{background:#160E26}
+body.fit-mobile #phone{border-radius:0;box-shadow:none}
+</style>
+</head>
+<body>
+<div id="stage"><div id="phone"></div></div>
+<template id="dc-tpl">
+<div class="{{rootClass}}" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: var(--bg); color: var(--text); transition: background .3s, color .3s; font-family: 'Plus Jakarta Sans', system-ui, sans-serif">
+
+<!-- ============ SPLASH ============ -->
+<sc-if value="{{isSplash}}" hint-placeholder-val="{{ true }}">
+<div class="fade" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 72px 32px 56px">
+<img src="assets/glow-1.webp" alt="" aria-hidden="true" style="position: absolute; right: -260px; bottom: -200px; width: 560px; opacity: 0.45; pointer-events: none">
+<div style="position: relative; height: 64px; display: flex; align-items: center; isolation: isolate">
+<div style="position: absolute; left: -6px; width: 64px; height: 64px; border-radius: 50%; background: #BDF288"></div>
+<span style="position: relative; font-weight: 800; font-size: 34px; letter-spacing: -0.07em; color: #bdf288; mix-blend-mode: difference">AISpeak</span>
+</div>
+<div class="blobs" style="position: relative; width: 190px; height: 230px; margin-top: 64px">
+<img src="assets/blob-a.webp" alt="" aria-hidden="true">
+<img src="assets/blob-b.webp" alt="" aria-hidden="true">
+<img src="assets/blob-c.webp" alt="" aria-hidden="true">
+</div>
+<h1 style="margin: 48px 0 0; font-size: 26px; font-weight: 700; text-align: center; line-height: 1.25">Hi, nice to meet you</h1>
+<p style="margin: 12px 0 0; font-size: 15px; color: var(--muted); text-align: center; line-height: 1.5">Speak with confidence,<br>powered by AI</p>
+<div style="flex-grow: 1"></div>
+<button class="btn-primary" onClick="{{goRegister}}">Start</button>
+<p style="margin: 20px 0 0; font-size: 13px; color: var(--muted)">Already have an account? <button class="link" onClick="{{goSignin}}">Sign In</button></p>
+</div>
+</sc-if>
+
+<!-- ============ REGISTER / SIGN IN ============ -->
+<sc-if value="{{isAuth}}" hint-placeholder-val="{{ false }}">
+<div class="fade" style="position: absolute; inset: 0; display: flex; flex-direction: column; padding: 56px 28px 48px">
+<img src="assets/glow-2.webp" alt="" aria-hidden="true" style="position: absolute; left: -300px; top: -260px; width: 520px; opacity: 0.35; pointer-events: none">
+<button class="icon-btn" aria-label="Back" onClick="{{goSplash}}" style="margin-left: -10px; position: relative">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</button>
+<div style="position: relative; height: 56px; display: flex; align-items: center; isolation: isolate; margin-top: 16px; align-self: center">
+<div style="position: absolute; left: -6px; width: 56px; height: 56px; border-radius: 50%; background: #BDF288"></div>
+<span style="position: relative; font-weight: 800; font-size: 30px; letter-spacing: -0.07em; color: #bdf288; mix-blend-mode: difference">AISpeak</span>
+</div>
+<h1 style="margin: 36px 0 28px; font-size: 26px; font-weight: 700; text-align: center">{{authTitle}}</h1>
+<div style="display: flex; flex-direction: column; gap: 16px; position: relative">
+<sc-if value="{{isRegister}}" hint-placeholder-val="{{ true }}">
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--muted)">Your name
+<input class="field" type="text" value="{{name}}" onChange="{{onName}}" autocomplete="given-name">
+</label>
+</sc-if>
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--muted)">Email
+<input class="field" type="email" value="jakob.hoffmann@mail.com" readonly>
+</label>
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--muted)">Password
+<input class="field" type="password" value="passwordpassword" readonly>
+</label>
+</div>
+<button class="btn-primary" onClick="{{authSubmit}}" style="margin-top: 32px; align-self: center">{{authCta}}</button>
+<div style="display: flex; align-items: center; gap: 12px; margin-top: 32px; color: var(--muted); font-size: 12px">
+<div style="flex-grow: 1; height: 1px; background: var(--line)"></div>or continue with<div style="flex-grow: 1; height: 1px; background: var(--line)"></div>
+</div>
+<div style="display: flex; gap: 12px; margin-top: 20px">
+<button class="btn-ghost" onClick="{{authSubmit}}" style="flex: 1; text-transform: none; letter-spacing: 0; font-size: 14px">Google</button>
+<button class="btn-ghost" onClick="{{authSubmit}}" style="flex: 1; text-transform: none; letter-spacing: 0; font-size: 14px">Apple</button>
+</div>
+<div style="flex-grow: 1"></div>
+<p style="margin: 0; font-size: 13px; color: var(--muted); text-align: center">{{authSwitchText}} <button class="link" onClick="{{authSwitch}}">{{authSwitchCta}}</button></p>
+</div>
+</sc-if>
+
+<!-- ============ INTRO TO ONBOARDING ============ -->
+<sc-if value="{{isIntro}}" hint-placeholder-val="{{ false }}">
+<div class="fade" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 72px 32px 56px">
+<img src="assets/glow-1.webp" alt="" aria-hidden="true" style="position: absolute; left: -280px; bottom: -160px; width: 560px; opacity: 0.4; pointer-events: none">
+<div style="position: relative; height: 64px; display: flex; align-items: center; isolation: isolate">
+<div style="position: absolute; left: -6px; width: 64px; height: 64px; border-radius: 50%; background: #BDF288"></div>
+<span style="position: relative; font-weight: 800; font-size: 34px; letter-spacing: -0.07em; color: #bdf288; mix-blend-mode: difference">AISpeak</span>
+</div>
+<div class="blobs" style="position: relative; width: 170px; height: 210px; margin-top: 56px">
+<img src="assets/blob-b.webp" alt="" aria-hidden="true">
+<img src="assets/blob-c.webp" alt="" aria-hidden="true">
+<img src="assets/blob-a.webp" alt="" aria-hidden="true">
+</div>
+<h1 style="margin: 44px 0 0; font-size: 22px; font-weight: 700; text-align: center; line-height: 1.35">Nice to meet you, {{displayName}}! We want to get to know you better so we can help you achieve great results</h1>
+<p style="margin: 14px 0 0; font-size: 14px; color: var(--muted); text-align: center">Please answer a few questions</p>
+<div style="flex-grow: 1"></div>
+<button class="btn-primary" onClick="{{startOnb}}">Let’s start</button>
+</div>
+</sc-if>
+
+<!-- ============ ONBOARDING QUESTIONS ============ -->
+<sc-if value="{{isOnb}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; padding: 52px 24px 40px">
+<img src="assets/glow-1.webp" alt="" aria-hidden="true" style="position: absolute; right: -300px; bottom: -220px; width: 560px; opacity: 0.35; pointer-events: none">
+<div style="display: flex; align-items: center; gap: 12px; position: relative">
+<button class="icon-btn" aria-label="Back" onClick="{{onbBack}}" style="margin-left: -10px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</button>
+<div style="flex-grow: 1; display: flex; gap: 6px">
+<sc-for list="{{progress}}" as="seg" hint-placeholder-count="5">
+<div style="{{seg.style}}"></div>
+</sc-for>
+</div>
+<span style="font-size: 12px; color: var(--muted); min-width: 28px; text-align: right">{{stepLabel}}</span>
+</div>
+<div class="fade" style="display: flex; flex-direction: column; flex-grow: 1; min-height: 0; position: relative">
+<h1 style="margin: 28px 0 0; font-size: 24px; font-weight: 700; line-height: 1.3">{{step.title}}</h1>
+<p style="margin: 8px 0 0; font-size: 14px; color: var(--muted); line-height: 1.5">{{step.sub}}</p>
+<div class="scroll" style="{{optWrapStyle}}">
+<sc-for list="{{opts}}" as="o" hint-placeholder-count="5">
+<button onClick="{{o.pick}}" style="{{o.style}}" aria-pressed="{{o.selected}}">
+<span style="{{o.labelStyle}}">{{o.label}}</span>
+<sc-if value="{{o.hasSub}}" hint-placeholder-val="{{ false }}"><span style="{{o.subStyle}}">{{o.sub}}</span></sc-if>
+</button>
+</sc-for>
+</div>
+</div>
+<button class="btn-primary" onClick="{{onbNext}}" disabled="{{nextDisabled}}" style="align-self: center; margin-top: 20px; position: relative">{{nextLabel}}</button>
+</div>
+</sc-if>
+
+<!-- ============ WELCOME ============ -->
+<sc-if value="{{isWelcome}}" hint-placeholder-val="{{ false }}">
+<div class="fade" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 72px 32px 56px">
+<img src="assets/glow-1.webp" alt="" aria-hidden="true" style="position: absolute; right: -260px; bottom: -200px; width: 560px; opacity: 0.45; pointer-events: none">
+<div style="position: relative; height: 64px; display: flex; align-items: center; isolation: isolate">
+<div style="position: absolute; left: -6px; width: 64px; height: 64px; border-radius: 50%; background: #BDF288"></div>
+<span style="position: relative; font-weight: 800; font-size: 34px; letter-spacing: -0.07em; color: #bdf288; mix-blend-mode: difference">AISpeak</span>
+</div>
+<div class="blobs" style="position: relative; width: 190px; height: 230px; margin-top: 64px">
+<img src="assets/blob-a.webp" alt="" aria-hidden="true">
+<img src="assets/blob-b.webp" alt="" aria-hidden="true">
+<img src="assets/blob-c.webp" alt="" aria-hidden="true">
+</div>
+<h1 style="margin: 52px 0 0; font-size: 28px; font-weight: 700; text-align: center">{{welcomeText}}</h1>
+<sc-if value="{{hasPlan}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 14px 0 0; font-size: 14px; color: var(--muted); text-align: center; line-height: 1.5">{{planText}}</p>
+</sc-if>
+<div style="flex-grow: 1"></div>
+<button class="btn-primary" onClick="{{enterApp}}">Let’s start</button>
+</div>
+</sc-if>
+
+<!-- ============ APP ============ -->
+<sc-if value="{{isApp}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0">
+
+<!-- ---------- HOME FEED ---------- -->
+<sc-if value="{{isHomeFeed}}" hint-placeholder-val="{{ true }}">
+<div class="scroll fade" style="position: absolute; inset: 0; padding: 52px 20px 120px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<p style="margin: 0; font-size: 14px; color: var(--muted)">Good afternoon, <span style="color: var(--text); font-weight: 700">{{displayName}}</span></p>
+<div style="display: flex; align-items: center; gap: 6px; background: var(--card); border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 700"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>28 days</div>
+</div>
+<h2 style="margin: 24px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>lessons for today</h2>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{lessons}}" as="c" hint-placeholder-count="2">
+<div style="background: var(--card); border-radius: 18px; padding: 10px; position: relative">
+<button class="card-btn" onClick="{{c.open}}">
+<div style="border-radius: 12px; overflow: hidden; height: 128px"><img src="{{c.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></div>
+<p style="margin: 10px 44px 4px 4px; font-size: 14px; font-weight: 600">{{c.title}}</p>
+<p style="margin: 0 44px 2px 4px; font-size: 12px; color: var(--muted)">{{c.meta}}</p>
+</button>
+<button class="icon-btn" aria-label="{{c.bmLabel}}" onClick="{{c.bm}}" style="position: absolute; right: 4px; bottom: 4px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="{{c.bmFill}}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+</button>
+</div>
+</sc-for>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/></svg>list of phrases to learn</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{phrases}}" as="p" hint-placeholder-count="6">
+<button onClick="{{p.open}}" style="{{p.style}}">
+<span style="font-size: 12px; font-weight: 700; line-height: 1.2">{{p.title}}</span>
+<span style="font-size: 10px; opacity: 0.85; margin-top: 2px">{{p.count}}</span>
+</button>
+</sc-for>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>recommended for you</h2>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{recs}}" as="c" hint-placeholder-count="2">
+<div style="background: var(--card); border-radius: 18px; padding: 10px; position: relative">
+<button class="card-btn" onClick="{{c.open}}">
+<div style="border-radius: 12px; overflow: hidden; height: 128px"><img src="{{c.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></div>
+<p style="margin: 10px 44px 4px 4px; font-size: 14px; font-weight: 600">{{c.title}}</p>
+<p style="margin: 0 44px 2px 4px; font-size: 12px; color: var(--muted)">{{c.meta}}</p>
+</button>
+<button class="icon-btn" aria-label="{{c.bmLabel}}" onClick="{{c.bm}}" style="position: absolute; right: 4px; bottom: 4px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="{{c.bmFill}}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+</button>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<!-- ---------- ARTICLE ---------- -->
+<sc-if value="{{isArticle}}" hint-placeholder-val="{{ false }}">
+<div class="scroll fade" style="position: absolute; inset: 0; padding: 44px 20px 120px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<button class="icon-btn" aria-label="Back to lessons" onClick="{{closeArticle}}" style="margin-left: -10px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</button>
+<button onClick="{{toggleSpeak}}" aria-label="Listen to the article" aria-pressed="{{speaking}}" style="height: 40px; min-width: 44px; padding: 0 12px; border-radius: 12px; border: 0; background: var(--card); color: var(--text); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600">
+<sc-if value="{{speaking}}" hint-placeholder-val="{{ false }}"><span class="bars" style="display: flex; align-items: center; height: 18px"><span></span><span></span><span></span><span></span></span>Reading…</sc-if>
+<sc-if value="{{notSpeaking}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></sc-if>
+</button>
+</div>
+<h1 style="margin: 12px 0 0; font-size: 22px; font-weight: 700; line-height: 1.25">Architecture and Design: Crafting the Spaces We <button class="w" onClick="{{openInhabit}}" style="font-weight: 700; color: var(--accent-text)">Inhabit</button></h1>
+<div style="margin-top: 16px; border-radius: 16px; overflow: hidden; height: 150px"><img src="assets/img-arch.webp" alt="Black and white spiral staircase seen from above" style="width: 100%; height: 100%; object-fit: cover; display: block"></div>
+<div style="margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted)">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Tap an underlined word to see its meaning
+</div>
+<div style="margin-top: 6px">
+<sc-for list="{{para}}" as="pp" hint-placeholder-count="5">
+<p style="{{pp.style}}"><sc-for list="{{pp.segs}}" as="s" hint-placeholder-count="3"><sc-if value="{{s.isWord}}" hint-placeholder-val="{{ false }}"><button class="w" onClick="{{s.pick}}">{{s.text}}</button></sc-if><sc-if value="{{s.plain}}" hint-placeholder-val="{{ true }}"><span>{{s.text}}</span></sc-if></sc-for></p>
+</sc-for>
+</div>
+<div style="margin-top: 24px">
+<div style="display: inline-flex; align-items: center; gap: 8px; background: var(--card); border-radius: 14px 14px 0 0; padding: 10px 14px 8px; font-size: 13px; font-weight: 700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 12 12 20a5 5 0 0 1-7-7l8-8a3.5 3.5 0 0 1 5 5l-8 8a2 2 0 0 1-3-3l7-7"/></svg>wordbank</div>
+<div style="background: var(--card); border-radius: 0 16px 16px 16px; padding: 14px; display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{articleWords}}" as="aw" hint-placeholder-count="6">
+<button onClick="{{aw.pick}}" style="{{aw.style}}">{{aw.label}}</button>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- ---------- DISCOVER FEED ---------- -->
+<sc-if value="{{isDiscFeed}}" hint-placeholder-val="{{ false }}">
+<div class="scroll fade" style="position: absolute; inset: 0; padding: 52px 20px 120px">
+<img src="assets/glow-2.webp" alt="" aria-hidden="true" style="position: absolute; right: -320px; top: 520px; width: 520px; opacity: 0.35; pointer-events: none">
+<h2 style="margin: 0 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5 5 5.5 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 .2 1.8 1 3 2.2 3.4C11 8.5 11 5 12 2z"/></svg>trending articles</h2>
+<div style="display: flex; flex-direction: column; gap: 14px; position: relative">
+<sc-for list="{{trending}}" as="c" hint-placeholder-count="2">
+<button class="card-btn" onClick="{{c.open}}" style="background: var(--card); border-radius: 18px; padding: 10px">
+<div style="border-radius: 12px; overflow: hidden; height: 110px"><img src="{{c.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></div>
+<p style="margin: 10px 4px 2px; font-size: 14px; font-weight: 600; line-height: 1.35">{{c.title}}</p>
+</button>
+</sc-for>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/></svg>podcasts you shouldn’t miss</h2>
+<button class="card-btn" onClick="{{podcastToast}}" style="background: var(--card); border-radius: 18px; padding: 12px; display: flex; gap: 12px; align-items: center; position: relative">
+<img src="assets/img-offmenu.webp" alt="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex-shrink: 0">
+<span style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<span style="font-size: 14px; font-weight: 700">Off Menu</span>
+<span style="font-size: 12px; color: var(--muted); line-height: 1.4">A comedy podcast with a new guest every week. Great for natural, fast British English.</span>
+</span>
+</button>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>video lessons you might like</h2>
+<div style="background: var(--card); border-radius: 18px; padding: 10px; position: relative">
+<button class="card-btn" onClick="{{openVideo}}">
+<div style="border-radius: 12px; overflow: hidden; height: 140px; position: relative"><img src="assets/img-rachel.webp" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block">
+<span style="position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: rgba(189,242,136,0.92); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="#160E26" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
+</div>
+<p style="margin: 10px 4px 2px; font-size: 14px; font-weight: 600">Rachel’s 1st Paycheck</p>
+<p style="margin: 0 4px 2px; font-size: 12px; color: var(--muted)">Video · 2 quiz questions · 7 words</p>
+</button>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"/><path d="M22 5h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"/></svg>all courses</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{courses}}" as="cs" hint-placeholder-count="2">
+<button class="card-btn" onClick="{{cs.open}}" style="height: 150px; border-radius: 18px; overflow: hidden; position: relative; background: var(--card)">
+<img src="{{cs.img}}" alt="" aria-hidden="true" style="position: absolute; left: -40px; top: -30px; width: 200px; opacity: 0.9">
+<span style="position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; font-weight: 700">{{cs.title}}</span>
+<span style="font-size: 12px; display: flex; align-items: center; gap: 4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>{{cs.rating}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<!-- ---------- VIDEO LESSON ---------- -->
+<sc-if value="{{isVideo}}" hint-placeholder-val="{{ false }}">
+<div class="scroll fade" style="position: absolute; inset: 0; padding: 44px 20px 120px">
+<img src="assets/glow-1.webp" alt="" aria-hidden="true" style="position: absolute; left: -300px; top: 300px; width: 520px; opacity: 0.35; pointer-events: none">
+<button class="icon-btn" aria-label="Back to Discover" onClick="{{closeVideo}}" style="margin-left: -10px; position: relative">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</button>
+<p style="margin: 8px 0 0; font-size: 16px; font-weight: 600; color: var(--accent-text); position: relative; display: flex; align-items: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>video lessons you might like</p>
+<h1 style="margin: 6px 0 14px; font-size: 22px; font-weight: 700; position: relative">Rachel’s 1st Paycheck</h1>
+<div style="background: var(--card); border-radius: 18px; padding: 10px; position: relative">
+<div style="border-radius: 12px; overflow: hidden; height: 180px; position: relative">
+<img src="assets/img-rachel.webp" alt="Scene: a woman opening an envelope" style="width: 100%; height: 100%; object-fit: cover; display: block">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 10px; display: flex; align-items: center; gap: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.65))">
+<button class="icon-btn" aria-label="{{playLabel}}" onClick="{{togglePlay}}" style="width: 32px; height: 32px">
+<sc-if value="{{playing}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></sc-if>
+<sc-if value="{{notPlaying}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></sc-if>
+</button>
+<div style="flex-grow: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.3); overflow: hidden"><div style="{{progStyle}}"></div></div>
+<span style="font-size: 11px; font-weight: 600; color: #fff">CC</span>
+</div>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; margin: 14px 4px 0">
+<span style="font-size: 12px; font-weight: 700">{{quizLabel}}</span>
+<span style="font-size: 12px; color: var(--muted)">{{quizScoreLabel}}</span>
+</div>
+<sc-if value="{{quizActive}}" hint-placeholder-val="{{ true }}">
+<p style="margin: 8px 4px 12px; font-size: 14px; font-weight: 600">{{quiz.q}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 0 4px 6px">
+<sc-for list="{{quizOpts}}" as="qo" hint-placeholder-count="3">
+<button onClick="{{qo.pick}}" style="{{qo.style}}">{{qo.label}}</button>
+</sc-for>
+</div>
+<sc-if value="{{quizAnswered}}" hint-placeholder-val="{{ false }}">
+<div class="fade" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 4px 4px">
+<span style="{{feedbackStyle}}">{{feedbackText}}</span>
+<button class="btn-primary" onClick="{{quizNext}}" style="height: 40px; padding: 0 22px; font-size: 12px">{{quizNextLabel}}</button>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{quizFinished}}" hint-placeholder-val="{{ false }}">
+<div class="fade" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 10px 4px 4px">
+<span style="font-size: 15px; font-weight: 700; color: var(--accent-text)">Quiz complete · {{quizScore}}/2 correct</span>
+<button class="btn-ghost" onClick="{{quizRetry}}" style="min-height: 40px; padding: 0 16px">Retry</button>
+</div>
+</sc-if>
+</div>
+<div style="margin-top: 20px; position: relative">
+<div style="display: inline-flex; align-items: center; gap: 8px; background: var(--card); border-radius: 14px 14px 0 0; padding: 10px 14px 8px; font-size: 13px; font-weight: 700">wordbank</div>
+<div style="background: var(--card); border-radius: 0 16px 16px 16px; padding: 14px">
+<p style="margin: 0 0 10px; font-size: 12px; color: var(--muted)">Tap a word to save it to your wordbank</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{vidWords}}" as="vw" hint-placeholder-count="7">
+<button onClick="{{vw.pick}}" aria-pressed="{{vw.saved}}" style="{{vw.style}}">{{vw.label}}</button>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- ---------- AI ASSISTANT ---------- -->
+<sc-if value="{{isAI}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0">
+<img src="assets/glow-1.webp" alt="" aria-hidden="true" style="position: absolute; right: -260px; bottom: -40px; width: 540px; opacity: 0.5; pointer-events: none">
+<img src="assets/glow-2.webp" alt="" aria-hidden="true" style="position: absolute; left: -330px; top: -200px; width: 520px; opacity: 0.35; pointer-events: none">
+
+<sc-if value="{{aiIntro}}" hint-placeholder-val="{{ true }}">
+<div class="fade" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 72px 32px 128px">
+<div style="position: relative; height: 64px; display: flex; align-items: center; isolation: isolate">
+<div style="position: absolute; left: -6px; width: 64px; height: 64px; border-radius: 50%; background: #BDF288"></div>
+<span style="position: relative; font-weight: 800; font-size: 34px; letter-spacing: -0.07em; color: #bdf288; mix-blend-mode: difference">AISpeak</span>
+</div>
+<div class="blobs" style="position: relative; width: 180px; height: 220px; margin-top: 48px">
+<img src="assets/blob-c.webp" alt="" aria-hidden="true">
+<img src="assets/blob-b.webp" alt="" aria-hidden="true">
+<img src="assets/blob-a.webp" alt="" aria-hidden="true">
+</div>
+<h1 style="margin: 44px 0 0; font-size: 22px; font-weight: 700; text-align: center">Hello, it’s your AI Assistant</h1>
+<p style="margin: 10px 0 0; font-size: 14px; color: var(--muted); text-align: center; line-height: 1.5">Practise real conversations out loud and get feedback on your speaking.</p>
+<div style="flex-grow: 1"></div>
+<button class="btn-primary" onClick="{{aiStart}}">Let’s start</button>
+</div>
+</sc-if>
+
+<sc-if value="{{aiTopics}}" hint-placeholder-val="{{ false }}">
+<div class="fade" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 44px 40px 128px">
+<button class="icon-btn" aria-label="Back" onClick="{{aiBackIntro}}" style="align-self: flex-start; margin-left: -30px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</button>
+<div style="position: relative; height: 64px; display: flex; align-items: center; isolation: isolate; margin-top: 8px">
+<div style="position: absolute; left: -6px; width: 64px; height: 64px; border-radius: 50%; background: #BDF288"></div>
+<span style="position: relative; font-weight: 800; font-size: 34px; letter-spacing: -0.07em; color: #bdf288; mix-blend-mode: difference">AISpeak</span>
+</div>
+<h1 style="margin: 48px 0 24px; font-size: 21px; font-weight: 700; text-align: center; line-height: 1.35">What do you want to talk about today?</h1>
+<div style="display: flex; flex-direction: column; gap: 12px; width: 100%">
+<sc-for list="{{topics}}" as="t" hint-placeholder-count="4">
+<button class="btn-ghost" onClick="{{t.pick}}">{{t.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{aiChat}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; padding-bottom: 92px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 44px 16px 14px; background: var(--card-a); backdrop-filter: blur(12px); position: relative">
+<button class="icon-btn" aria-label="Back to topics" onClick="{{aiBackTopics}}" style="margin-left: -6px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</button>
+<div style="width: 40px; height: 40px; border-radius: 50%; background: #160E26; overflow: hidden; display: flex; align-items: center; justify-content: center"><img src="assets/blob-a.webp" alt="" aria-hidden="true" style="width: 34px; height: 40px; object-fit: contain"></div>
+<div style="display: flex; flex-direction: column">
+<span style="font-size: 16px; font-weight: 700">AI Assistant</span>
+<span style="{{statusStyle}}">{{statusText}}</span>
+</div>
+<div style="flex-grow: 1"></div>
+<span style="font-size: 11px; font-weight: 700; color: #160E26; background: #BDF288; border-radius: 999px; padding: 4px 10px">{{topicLabel}}</span>
+</div>
+<div class="scroll" ref="{{chatRef}}" style="flex-grow: 1; min-height: 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; position: relative">
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="2">
+<div class="fade" style="{{m.rowStyle}}"><div style="{{m.bubbleStyle}}">{{m.text}}</div></div>
+</sc-for>
+<sc-if value="{{typing}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex"><div style="background: var(--card-a); border-radius: 18px 18px 18px 4px; padding: 14px 16px; display: flex; gap: 5px"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+</sc-if>
+</div>
+<div style="position: relative; padding: 8px 24px 0; display: flex; flex-direction: column; align-items: center; gap: 10px">
+<sc-if value="{{chatOpen}}" hint-placeholder-val="{{ true }}">
+<p style="margin: 0; font-size: 12px; color: var(--muted); text-align: center; min-height: 16px">{{micHint}}</p>
+<div style="display: flex; align-items: center; justify-content: center; gap: 28px">
+<button aria-label="Type instead" onClick="{{typeToast}}" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: #BDF288; color: #160E26; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>
+</button>
+<button aria-label="{{micLabel}}" onClick="{{mic}}" class="{{micClass}}" style="{{micStyle}}">
+<sc-if value="{{recording}}" hint-placeholder-val="{{ false }}"><span class="bars" style="display: flex; align-items: center; height: 20px"><span style="background: #160E26"></span><span style="background: #160E26"></span><span style="background: #160E26"></span><span style="background: #160E26"></span></span></sc-if>
+<sc-if value="{{notRecording}}" hint-placeholder-val="{{ true }}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></sc-if>
+</button>
+<button aria-label="Conversation settings" onClick="{{settingsToast}}" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: #BDF288; color: #160E26; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
+</button>
+</div>
+</sc-if>
+<sc-if value="{{chatDone}}" hint-placeholder-val="{{ false }}">
+<button class="btn-primary fade" onClick="{{aiToDone}}" style="margin: 14px 0 8px">See results</button>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{aiDone}}" hint-placeholder-val="{{ false }}">
+<div class="fade" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 72px 32px 128px">
+<div style="position: relative; height: 64px; display: flex; align-items: center; isolation: isolate">
+<div style="position: absolute; left: -6px; width: 64px; height: 64px; border-radius: 50%; background: #BDF288"></div>
+<span style="position: relative; font-weight: 800; font-size: 34px; letter-spacing: -0.07em; color: #bdf288; mix-blend-mode: difference">AISpeak</span>
+</div>
+<div class="blobs" style="position: relative; width: 180px; height: 220px; margin-top: 56px">
+<img src="assets/blob-a.webp" alt="" aria-hidden="true">
+<img src="assets/blob-b.webp" alt="" aria-hidden="true">
+<img src="assets/blob-c.webp" alt="" aria-hidden="true">
+</div>
+<h1 style="margin: 48px 0 0; font-size: 28px; font-weight: 700">Well done!</h1>
+<p style="margin: 10px 0 0; font-size: 14px; color: var(--muted); text-align: center">You finished “{{topicLabel}}”</p>
+<div style="flex-grow: 1"></div>
+<button class="btn-primary" onClick="{{aiToSummary}}">See results</button>
+</div>
+</sc-if>
+
+<sc-if value="{{aiSummary}}" hint-placeholder-val="{{ false }}">
+<div class="fade scroll" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 64px 24px 120px">
+<div style="position: relative; height: 56px; display: flex; align-items: center; isolation: isolate">
+<div style="position: absolute; left: -6px; width: 56px; height: 56px; border-radius: 50%; background: #BDF288"></div>
+<span style="position: relative; font-weight: 800; font-size: 30px; letter-spacing: -0.07em; color: #bdf288; mix-blend-mode: difference">AISpeak</span>
+</div>
+<h1 style="margin: 36px 0 16px; font-size: 21px; font-weight: 700; align-self: flex-start">Assessment Summary</h1>
+<div style="background: var(--card-a); border-radius: 18px; padding: 18px; width: 100%">
+<p style="margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-soft)">{{summaryText}}</p>
+<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 18px">
+<sc-for list="{{scores}}" as="sc" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px">
+<img src="{{sc.img}}" alt="" aria-hidden="true" style="width: 24px; height: 28px; object-fit: contain">
+<span style="font-size: 13px; font-weight: 700; flex-grow: 1">{{sc.label}}: <span style="color: var(--accent-text)">{{sc.level}}</span></span>
+<div style="width: 80px; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden"><div style="{{sc.bar}}"></div></div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="flex-grow: 1; min-height: 28px"></div>
+<button class="btn-primary" onClick="{{aiFinish}}">Finish</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<!-- ---------- PROFILE ---------- -->
+<sc-if value="{{isProfile}}" hint-placeholder-val="{{ false }}">
+<div class="scroll fade" style="position: absolute; inset: 0; padding: 52px 20px 120px">
+<div style="display: flex; align-items: center; gap: 14px">
+<div style="width: 56px; height: 56px; border-radius: 50%; background: #BDF288; color: #160E26; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800">{{initial}}</div>
+<div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1">
+<span style="font-size: 18px; font-weight: 700">Hi, {{displayName}}! How is it going?</span>
+<button class="link" onClick="{{editToast}}" style="align-self: flex-start; font-size: 13px; color: var(--muted); text-decoration: underline">Edit Profile</button>
+</div>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>my progress</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="background: var(--card); border-radius: 14px; padding: 14px 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 800">{{phrasesLearned}}</span><span style="font-size: 11px; color: var(--muted)">phrases learned</span></div>
+<div style="background: var(--card); border-radius: 14px; padding: 14px 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 800">46</span><span style="font-size: 11px; color: var(--muted)">lessons done</span></div>
+<div style="background: var(--card); border-radius: 14px; padding: 14px 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 800">28</span><span style="font-size: 11px; color: var(--muted)">days non-stop</span></div>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 20v-8M12 20V5M19 20v-5"/></svg>statistics</h2>
+<div style="background: var(--card); border-radius: 16px; padding: 16px; display: flex; gap: 16px; align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 96px"><span style="font-size: 24px; font-weight: 800">105 h</span><span style="font-size: 11px; color: var(--muted)">time spent</span></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: flex-end; gap: 6px; height: 64px">
+<sc-for list="{{week}}" as="d" hint-placeholder-count="7"><div style="{{d.style}}"></div></sc-for>
+</div>
+<div style="display: flex; gap: 6px"><sc-for list="{{week}}" as="d" hint-placeholder-count="7"><span style="flex: 1; text-align: center; font-size: 10px; color: var(--muted)">{{d.day}}</span></sc-for></div>
+</div>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg>my courses</h2>
+<div style="background: var(--card); border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center">
+<div style="width: 56px; height: 56px; border-radius: 12px; background: #160E26; overflow: hidden; flex-shrink: 0"><img src="assets/blob-c.webp" alt="" aria-hidden="true" style="width: 56px; height: 56px; object-fit: cover"></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 14px; font-weight: 700">Preparation for TOEFL</span>
+<span style="font-size: 12px; color: var(--muted)">4 h 5 min left · 22 lessons</span>
+<div style="height: 6px; border-radius: 3px; background: var(--line); overflow: hidden"><div style="width: 62%; height: 100%; background: #BDF288; border-radius: 3px"></div></div>
+</div>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.5-9-9a4.5 4.5 0 0 1 9-3 4.5 4.5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg>my favorites</h2>
+<div class="scroll" style="display: flex; gap: 10px; overflow-x: auto; margin: 0 -20px; padding: 0 20px">
+<sc-for list="{{favorites}}" as="f" hint-placeholder-count="3">
+<button class="card-btn" onClick="{{f.open}}" style="width: 140px; flex-shrink: 0; background: var(--card); border-radius: 14px; padding: 8px">
+<div style="border-radius: 10px; overflow: hidden; height: 80px"><img src="{{f.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></div>
+<span style="display: block; margin: 8px 2px 2px; font-size: 12px; font-weight: 600; line-height: 1.3">{{f.title}}</span>
+</button>
+</sc-for>
+</div>
+<h2 style="margin: 28px 0 12px; font-size: 19px; font-weight: 600; color: var(--accent-text); display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 12 12 20a5 5 0 0 1-7-7l8-8a3.5 3.5 0 0 1 5 5l-8 8a2 2 0 0 1-3-3l7-7"/></svg>wordbank · {{savedCount}}</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{savedWords}}" as="sw" hint-placeholder-count="6">
+<span style="padding: 8px 14px; border-radius: 999px; background: var(--card); font-size: 13px; border: 1px solid rgba(189,242,136,0.4)">{{sw.label}}</span>
+</sc-for>
+</div>
+<div style="margin-top: 28px; background: var(--card); border-radius: 16px; overflow: hidden">
+<button onClick="{{toggleDark}}" role="switch" aria-checked="{{dark}}" style="width: 100%; min-height: 52px; padding: 0 16px; background: none; border: 0; color: var(--text); display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 600">Dark Mode<span style="{{switchTrack}}"><span style="{{switchKnob}}"></span></span></button>
+<div style="height: 1px; background: var(--line); margin: 0 16px"></div>
+<button onClick="{{faqToast}}" style="width: 100%; min-height: 52px; padding: 0 16px; background: none; border: 0; color: var(--text); text-align: left; font-size: 14px; font-weight: 600">FAQ</button>
+<div style="height: 1px; background: var(--line); margin: 0 16px"></div>
+<button onClick="{{aboutToast}}" style="width: 100%; min-height: 52px; padding: 0 16px; background: none; border: 0; color: var(--text); text-align: left; font-size: 14px; font-weight: 600">About App</button>
+<div style="height: 1px; background: var(--line); margin: 0 16px"></div>
+<button onClick="{{logout}}" style="width: 100%; min-height: 52px; padding: 0 16px; background: none; border: 0; color: var(--danger); text-align: left; font-size: 14px; font-weight: 600">Log Out</button>
+</div>
+</div>
+</sc-if>
+
+<!-- ---------- WORD SHEET ---------- -->
+<sc-if value="{{wordOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: var(--scrim); backdrop-filter: blur(3px); z-index: 5">
+<button aria-label="Close word card" onClick="{{closeWord}}" style="position: absolute; inset: 0; background: none; border: 0; cursor: default"></button>
+<div class="fade" role="dialog" aria-label="Word meaning" style="position: absolute; left: 16px; right: 16px; bottom: 104px; background: var(--card); border-radius: 20px; padding: 18px 18px 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.45)">
+<p style="margin: 0; font-size: 14px; line-height: 1.6"><span style="color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; font-weight: 700">{{w.head}}</span> <span style="color: var(--muted)">· {{w.type}}</span></p>
+<p style="margin: 6px 0 0; font-size: 14px; line-height: 1.6">{{w.def}}</p>
+<p style="margin: 14px 0 6px; font-size: 13px; font-weight: 700; color: var(--accent-text)">{{w.exLabel}}</p>
+<sc-for list="{{w.ex}}" as="ex" hint-placeholder-count="2">
+<p style="margin: 0 0 6px; font-size: 13px; line-height: 1.55; color: var(--text-soft); padding-left: 14px; position: relative"><span style="position: absolute; left: 0">•</span>“{{ex.t}}”</p>
+</sc-for>
+<div style="display: flex; justify-content: flex-end; gap: 4px; margin-top: 4px">
+<button class="icon-btn" onClick="{{toggleDe}}" aria-label="{{w.trLabel}}" aria-pressed="{{wordDe}}" style="width: auto; padding: 0 10px; gap: 6px; font-size: 12px; font-weight: 700">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h8M8 3v2M6 5c0 4 2 7 5 8M10 5c0 3-2 6-5 8"/><path d="M13 21l4-9 4 9M14.5 18h5"/></svg>{{w.lang}}
+</button>
+<button class="icon-btn" onClick="{{toggleSaveWord}}" aria-label="{{w.saveLabel}}" aria-pressed="{{w.saved}}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="{{w.heartFill}}" stroke="{{w.heartStroke}}" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.5-9-9a4.5 4.5 0 0 1 9-3 4.5 4.5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg>
+</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- ---------- BOTTOM NAV ---------- -->
+<sc-if value="{{showNav}}" hint-placeholder-val="{{ true }}">
+<nav aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; height: 96px; padding: 24px 12px 14px; display: flex; justify-content: space-around; align-items: center; z-index: 4; isolation: isolate">
+<svg class="nav-shape" viewBox="0 0 390 96" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible"><path d="M0 22 C 70 12, 130 10, 195 10 C 260 10, 320 12, 390 22 L 390 96 L 0 96 Z" style="fill: var(--nav); stroke: var(--line); stroke-width: 1"/></svg>
+<button class="nav-btn" onClick="{{tabHome}}" aria-current="{{curHome}}" style="{{navHome}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>Home</button>
+<button class="nav-btn" onClick="{{tabDiscover}}" aria-current="{{curDiscover}}" style="{{navDiscover}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>Discover</button>
+<button class="nav-btn" onClick="{{tabAI}}" aria-current="{{curAI}}" style="{{navAI}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg>AI Assistant</button>
+<button class="nav-btn" onClick="{{tabProfile}}" aria-current="{{curProfile}}" style="{{navProfile}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profile</button>
+</nav>
+</sc-if>
+</div>
+</sc-if>
+
+<!-- ============ TOAST ============ -->
+<sc-if value="{{toastOn}}" hint-placeholder-val="{{ false }}">
+<div class="fade" role="status" style="position: absolute; left: 20px; right: 20px; top: 20px; z-index: 9; background: #BDF288; color: #160E26; border-radius: 14px; padding: 12px 16px; font-size: 13px; font-weight: 700; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.35)">{{toast}}</div>
+</sc-if>
+
+</div>
+</template>
+<script src="app.js"></script>
+<script>
+
+var IMG = {
+  blobA: 'assets/blob-a.webp',
+  blobB: 'assets/blob-b.webp',
+  blobC: 'assets/blob-c.webp',
+  arch: 'assets/img-arch.webp',
+  office: 'assets/img-office.webp',
+  interview: 'assets/img-interview.webp',
+  games: 'assets/img-games.webp',
+  rachel: 'assets/img-rachel.webp',
+  beef: 'assets/img-beef.webp',
+  saltburn: 'assets/img-saltburn.webp'
+};
+var LIME = '#BDF288', INK = '#160E26', CARD = 'var(--card)', MUTED = 'var(--muted)', TEXT = 'var(--text)', ACC_T = 'var(--accent-text)';
+
+var STEPS = [
+  { key: 'lang', title: 'What’s your native language?', sub: 'Please choose from the list', multi: false, kind: 'list',
+    opts: [['Afrikaans','Afrikaans'],['Arabic','العربية'],['Azerbaijani','Azərbaycan dili'],['Belarusian','Беларуская мова'],['Chinese (Mandarin)','普通话'],['Czech','čeština'],['French','Français'],['German','Deutsch'],['Russian','Русский'],['Spanish','Español'],['Ukrainian','Українська']].map(function (a) { return { id: a[0], label: a[0], sub: a[1] }; }) },
+  { key: 'why', title: 'Why are you practicing English?', sub: 'This will help us find the best solution for you. Choose as many as you like.', multi: true, kind: 'stack',
+    opts: ['Education','Job opportunities','Travel','Live abroad','New friends'].map(function (x) { return { id: x, label: x }; }) },
+  { key: 'level', title: 'What’s your English level?', sub: 'This will help us adjust our lessons to match your abilities', multi: false, kind: 'stack',
+    opts: ['Beginner','Intermediate','Advanced'].map(function (x) { return { id: x, label: x }; }) },
+  { key: 'goal', title: 'What’s your practice goal?', sub: 'This will help us keep you on track to reach your goals', multi: false, kind: 'goal',
+    opts: [{ id: 'Casual', label: 'Casual Practice', sub: '10 minutes / day' },{ id: 'Standard', label: 'Standard Practice', sub: '15 minutes / day' },{ id: 'Serious', label: 'Serious Practice', sub: '20 minutes / day' }] },
+  { key: 'topics', title: 'Which of these topics interest you?', sub: 'This will help us get to know you better and match you with the best content', multi: true, kind: 'wrap',
+    opts: ['Art and design','Films and series','Entertainment','Job interview','History and facts','Music and podcasts','Travel','Science','Sports'].map(function (x) { return { id: x, label: x }; }) }
+];
+var GOAL_MIN = { Casual: 10, Standard: 15, Serious: 20 };
+
+var WORDS = {
+  inhabit: { head: 'inhabit', type: 'verb', def: 'To live in or occupy a place. When someone inhabits a location, they live or exist there.',
+    ex: ['Humans inhabit various regions around the world.', 'The ancient ruins were once inhabited by a thriving civilization.'],
+    deHead: 'bewohnen', deType: 'Verb', deDef: 'An einem Ort leben oder ihn besetzen. Wenn jemand einen Ort bewohnt, lebt er dort.',
+    deEx: ['Die Menschen bewohnen verschiedene Regionen auf der ganzen Welt.', 'Die alten Ruinen wurden einst von einer blühenden Zivilisation bewohnt.'] },
+  blueprint: { head: 'the blueprint of existence', type: 'phrase', def: 'A blueprint is a detailed technical plan. Here it means the basic plan that shapes how we live.',
+    ex: ['Good architecture is the blueprint of a comfortable life.'],
+    deHead: 'der Bauplan des Daseins', deType: 'Redewendung', deDef: 'Ein Bauplan ist ein genauer technischer Plan – hier im übertragenen Sinn: der Grundriss unseres Lebens.',
+    deEx: ['Gute Architektur ist der Bauplan für ein angenehmes Leben.'] },
+  utilitarian: { head: 'utilitarian', type: 'adjective', def: 'Designed to be useful and practical rather than attractive.',
+    ex: ['The office has a simple, utilitarian design.'],
+    deHead: 'zweckmäßig', deType: 'Adjektiv', deDef: 'Auf Nutzen und Funktion ausgerichtet, nicht auf Schönheit.',
+    deEx: ['Das Büro hat ein schlichtes, zweckmäßiges Design.'] },
+  coexistence: { head: 'coexistence', type: 'noun', def: 'The state of living or existing together in the same place at the same time.',
+    ex: ['The park encourages a peaceful coexistence between people and wildlife.'],
+    deHead: 'Koexistenz', deType: 'Nomen', deDef: 'Das friedliche Zusammenleben oder Nebeneinander-Bestehen.',
+    deEx: ['Der Park fördert eine friedliche Koexistenz von Menschen und Tieren.'] },
+  flourish: { head: 'flourish', type: 'noun', def: 'A bold or decorative detail that makes something look more stylish.',
+    ex: ['She signed her name with a flourish.'],
+    deHead: 'Schnörkel', deType: 'Nomen', deDef: 'Eine auffällige, verzierende Geste oder ein dekoratives Detail.',
+    deEx: ['Sie unterschrieb mit einem eleganten Schnörkel.'] },
+  permeates: { head: 'permeate', type: 'verb', def: 'To spread through every part of something.',
+    ex: ['The smell of fresh coffee permeated the whole flat.'],
+    deHead: 'durchdringen', deType: 'Verb', deDef: 'Sich in allen Teilen von etwas ausbreiten.',
+    deEx: ['Der Kaffeeduft durchdrang die ganze Wohnung.'] },
+  myriad: { head: 'myriad ways', type: 'phrase', def: 'A very large number of ways; countless possibilities.',
+    ex: ['The city offers myriad ways to spend a weekend.'],
+    deHead: 'auf unzählige Arten', deType: 'Redewendung', deDef: 'Auf sehr viele verschiedene Weisen.',
+    deEx: ['Die Stadt bietet unzählige Möglichkeiten für ein Wochenende.'] }
+};
+var ARTICLE_WORDS = ['inhabit','blueprint','coexistence','myriad','permeates','utilitarian','flourish'];
+
+var PARAS = [
+  ['p', 'In the tapestry of our everyday lives, architecture and design stand as silent storytellers, weaving narratives of functionality, beauty, and human experience. These two intertwined disciplines shape the structures that surround us, influencing the way we live, work, and interact with the world.'],
+  ['h', 'Architecture: [The Blueprint of Existence|blueprint]'],
+  ['p', 'At its core, architecture is the art and science of designing and constructing buildings. Architects envision and materialize structures that serve both [utilitarian] and aesthetic purposes. From towering skyscrapers to quaint cottages, each architectural creation tells a story of cultural influences, technological advancements, and the creative spirit.'],
+  ['p', 'Spatial dynamics: architects play with space, designing layouts that cater to human needs and activities, fostering a harmonious [coexistence] between individuals and their environments.'],
+  ['h', 'Design: The Artistic [Flourish|flourish] in Everyday Life'],
+  ['p', 'Design, the artistic sibling of architecture, [permeates] our surroundings in [myriad ways|myriad]. From the layout of a city block to the arrangement of furniture in a room, design influences our perception, emotions, and the way we [inhabit] our spaces.']
+];
+
+var TOPICS = [
+  { id: 'friend', label: 'Talk with friend' },
+  { id: 'job', label: 'Job interview' },
+  { id: 'doctor', label: 'At doctor’s appointment' },
+  { id: 'direction', label: 'Asking for direction' }
+];
+var SCRIPTS = {
+  job: ['Hi {name}, thanks for coming in today. Could you start by telling me a little about yourself?',
+    'Sure! I’m a digital designer, and I’ve been working on branding and web projects for about two years.',
+    'Great. What would you say is your biggest strength as a designer?',
+    'I think it’s turning complex ideas into simple, clear visuals that people understand quickly.',
+    'That’s a valuable skill. Last question — why do you want to join our team?',
+    'Your products help people learn, and I’d love to design experiences with that kind of impact.',
+    'Thank you, {name}. That was a strong interview. Let’s see how you did!'],
+  friend: ['Hey {name}! Long time no see. What have you been up to lately?',
+    'Not much, just busy with work. I started learning to cook Italian food, though!',
+    'Oh nice! What’s the best thing you’ve made so far?',
+    'Probably fresh pasta. It took ages, but it was totally worth it.',
+    'Sounds delicious — you’ll have to invite me over next time! Nice chat, let’s look at your results.'],
+  doctor: ['Good morning. What brings you in today?',
+    'Hi, I’ve had a sore throat and a slight fever since Monday.',
+    'I see. Have you taken anything for it so far?',
+    'Just some tea with honey and a few painkillers.',
+    'Okay, thank you. You described your symptoms very clearly. Let’s check your results.'],
+  direction: ['Hi there! You look a little lost. Can I help you?',
+    'Yes, please. How do I get to the central station from here?',
+    'Go straight for two blocks, then turn left at the bakery. You can’t miss it.',
+    'Straight for two blocks, then left at the bakery. Thanks a lot!',
+    'You’re welcome! Great job repeating the directions back. Let’s see how you did.']
+};
+
+var QUIZ = [
+  { q: '1. What did Rachel get?', opts: ['a letter', 'a paycheck', 'a bill'], correct: 1 },
+  { q: '2. What was Phoebe’s first job?', opts: ['she worked at a Dairy Queen', 'she worked in a mine'], correct: 1 }
+];
+var VID_WORDS = ['shopping','exciting','tonight','totally','paycheck','elbows','swear'];
+
+function parseSegs(str, open) {
+  var out = [], re = /\[([^\]|]+)(?:\|([^\]]+))?\]/g, last = 0, m;
+  while ((m = re.exec(str))) {
+    if (m.index > last) out.push({ text: str.slice(last, m.index), isWord: false, plain: true });
+    var key = m[2] || m[1].toLowerCase();
+    out.push({ text: m[1], isWord: true, plain: false, pick: open(key) });
+    last = re.lastIndex;
+  }
+  if (last < str.length) out.push({ text: str.slice(last), isWord: false, plain: true });
+  return out;
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      screen: 'splash', authMode: 'register', name: 'Jakob',
+      step: 0, answers: { lang: null, why: [], level: null, goal: null, topics: [] },
+      tab: 'home', homeView: 'feed', word: null, wordDe: false, speaking: false,
+      saved: ['exciting', 'tonight', 'totally', 'paycheck', 'elbows'],
+      bm: { arch: true, games: false, office: false, interview: true },
+      discView: 'feed', playing: false, qi: 0, qPick: null, qScore: 0, qDone: false,
+      ai: 'intro', topic: null, msgs: [], pos: 0, recording: false, typing: false, chatDone: false,
+      dark: props.darkMode !== false, toast: null
+    };
+    this._timers = [];
+    this._chat = null;
+  }
+  componentWillUnmount() { this._timers.forEach(function (t) { clearTimeout(t); }); }
+  componentDidUpdate(prev) {
+    if (this._chat) this._chat.scrollTop = this._chat.scrollHeight;
+    if (prev && prev.darkMode !== this.props.darkMode && this.props.darkMode !== undefined) this.setState({ dark: this.props.darkMode !== false });
+  }
+  later(fn, ms) { this._timers.push(setTimeout(fn, ms)); }
+  showToast(msg) {
+    var self = this;
+    this.setState({ toast: msg });
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(function () { self.setState({ toast: null }); }, 2200);
+  }
+  nm() { return (this.state.name || '').trim() || 'Jakob'; }
+  fill(t) { return t.replace(/\{name\}/g, this.nm()); }
+
+  renderVals() {
+    var self = this, s = this.state, set = function (o) { return function () { self.setState(o); }; };
+    var toast = function (m) { return function () { self.showToast(m); }; };
+    var name = this.nm();
+
+    // ---------- onboarding ----------
+    var step = STEPS[s.step];
+    var ans = s.answers[step.key];
+    var opts = step.opts.map(function (o) {
+      var sel = step.multi ? ans.indexOf(o.id) >= 0 : ans === o.id;
+      var base, labelStyle, subStyle;
+      var bg = sel ? LIME : CARD, fg = sel ? INK : TEXT, bd = sel ? LIME : 'rgba(189,242,136,0.35)';
+      if (step.kind === 'list') {
+        base = 'display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 16px; border-radius: 14px; text-align: left; border: 1px solid ' + (sel ? LIME : 'transparent') + '; background: ' + (sel ? 'rgba(189,242,136,0.14)' : CARD) + '; color: var(--text); flex-shrink: 0';
+        labelStyle = 'font-size: 15px; font-weight: 600';
+        subStyle = 'font-size: 13px; color: ' + (sel ? ACC_T : MUTED);
+      } else if (step.kind === 'wrap') {
+        base = 'min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid ' + bd + '; background: ' + bg + '; color: ' + fg + '; font-size: 14px; font-weight: 600; transition: background .2s';
+        labelStyle = ''; subStyle = '';
+      } else if (step.kind === 'goal') {
+        base = 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 64px; border-radius: 16px; border: 1px solid ' + bd + '; background: ' + bg + '; color: ' + fg + '; flex-shrink: 0; transition: background .2s';
+        labelStyle = 'font-size: 15px; font-weight: 700';
+        subStyle = 'font-size: 12px; opacity: 0.8';
+      } else {
+        base = 'min-height: 54px; border-radius: 16px; border: 1px solid ' + bd + '; background: ' + bg + '; color: ' + fg + '; font-size: 15px; font-weight: 700; flex-shrink: 0; transition: background .2s';
+        labelStyle = ''; subStyle = '';
+      }
+      return { label: o.label, sub: o.sub || '', hasSub: !!o.sub, selected: sel, style: base, labelStyle: labelStyle, subStyle: subStyle,
+        pick: function () {
+          var a = Object.assign({}, self.state.answers), cur = a[step.key];
+          if (step.multi) a[step.key] = cur.indexOf(o.id) >= 0 ? cur.filter(function (x) { return x !== o.id; }) : cur.concat([o.id]);
+          else a[step.key] = o.id;
+          self.setState({ answers: a });
+        } };
+    });
+    var optWrapStyle = step.kind === 'wrap'
+      ? 'margin-top: 24px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; flex-grow: 1; min-height: 0'
+      : 'margin-top: 24px; display: flex; flex-direction: column; gap: ' + (step.kind === 'list' ? 8 : 12) + 'px; flex-grow: 1; min-height: 0';
+    var answered = step.multi ? ans.length > 0 : !!ans;
+    var progress = STEPS.map(function (_, i) {
+      return { style: 'flex: 1; height: 4px; border-radius: 2px; transition: background .3s; background: ' + (i <= s.step ? LIME : 'var(--line)') };
+    });
+    var g = s.answers.goal;
+    var planText = s.answers.level && g ? ('Your plan: ' + s.answers.level + ' · ' + GOAL_MIN[g] + ' minutes a day') : '';
+
+    // ---------- home ----------
+    var card = function (id, title, meta, img, open) {
+      var on = !!s.bm[id];
+      return { title: title, meta: meta, img: img, open: open, bmFill: on ? 'currentColor' : 'none', bmLabel: on ? 'Remove bookmark' : 'Bookmark',
+        bm: function () { var b = Object.assign({}, self.state.bm); b[id] = !b[id]; self.setState({ bm: b }); self.showToast(b[id] ? 'Saved to bookmarks' : 'Removed from bookmarks'); } };
+    };
+    var openArticle = function () { self.setState({ homeView: 'article', word: null, speaking: false }); };
+    var demo = toast('Demo: open “Architecture and design” to try a lesson');
+    var lessons = [
+      card('arch', 'Architecture and design', 'Article · 5 min · 7 new words', IMG.arch, openArticle),
+      card('games', 'Videogames', 'Article · 4 min · 9 new words', IMG.games, demo)
+    ];
+    var recs = [
+      card('office', 'In the office', 'Phrases · 21 phrases', IMG.office, demo),
+      card('interview', 'Job interview', 'AI role-play · 10 min', IMG.interview, function () { self.setState({ tab: 'ai', ai: 'intro' }); })
+    ];
+    var PH = [['Small Talk','15 phrases','#7A464C'],['Weather','11 phrases','#4F6138'],['At doctor’s','7 phrases','#6B2A1E'],['In grocery','17 phrases','#80501A'],['In transport','23 phrases','#3D1F92'],['Videogames','20 phrases','#7B3F4C']];
+    var phrases = PH.map(function (p) {
+      return { title: p[0], count: p[1], open: toast(p[0] + ' · ' + p[1] + ' — coming soon'),
+        style: 'min-height: 56px; border-radius: 12px; border: 0; background: ' + p[2] + '; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 4px; text-align: center' };
+    });
+
+    // ---------- article / words ----------
+    var openWord = function (k) { return function () { self.setState({ word: k, wordDe: false }); }; };
+    var para = PARAS.map(function (p) {
+      return { style: p[0] === 'h' ? 'margin: 18px 0 4px; font-size: 15px; font-weight: 700; line-height: 1.5' : 'margin: 10px 0 0; font-size: 14px; line-height: 1.7; color: var(--text-soft)',
+        segs: parseSegs(p[1], openWord) };
+    });
+    var isSaved = function (label) { return s.saved.indexOf(label) >= 0; };
+    var toggleSaved = function (label) {
+      var sv = self.state.saved;
+      var on = sv.indexOf(label) >= 0;
+      self.setState({ saved: on ? sv.filter(function (x) { return x !== label; }) : sv.concat([label]) });
+      self.showToast(on ? '“' + label + '” removed from wordbank' : '“' + label + '” added to wordbank');
+    };
+    var articleWords = ARTICLE_WORDS.map(function (k) {
+      var lab = WORDS[k].head, on = isSaved(lab);
+      return { label: lab, pick: openWord(k),
+        style: 'min-height: 36px; padding: 0 12px; border-radius: 999px; font-size: 13px; color: var(--text); background: ' + (on ? 'rgba(189,242,136,0.16)' : 'var(--chip)') + '; border: 1px solid ' + (on ? LIME : 'transparent') };
+    });
+    var w = null;
+    if (s.word && WORDS[s.word]) {
+      var W = WORDS[s.word], de = s.wordDe, wsaved = isSaved(W.head);
+      w = { head: de ? W.deHead : W.head, type: de ? W.deType : W.type, def: de ? W.deDef : W.def,
+        ex: (de ? W.deEx : W.ex).map(function (t) { return { t: t }; }), exLabel: de ? 'Zum Beispiel:' : 'For example:',
+        lang: de ? 'DE' : 'EN', trLabel: de ? 'Show English' : 'Translate to German',
+        saved: wsaved, heartFill: wsaved ? LIME : 'none', heartStroke: wsaved ? LIME : 'currentColor', saveLabel: wsaved ? 'Remove from wordbank' : 'Save to wordbank' };
+    }
+
+    // ---------- discover ----------
+    var trending = [
+      { title: 'Everything you need to know about BEEF', img: IMG.beef, open: toast('Demo article — try “Rachel’s 1st Paycheck” below') },
+      { title: 'Is Saltburn the most divisive film of the year?', img: IMG.saltburn, open: toast('Demo article — try “Rachel’s 1st Paycheck” below') }
+    ];
+    var courses = [
+      { title: 'Preparation for IELTS', rating: '5.0', img: IMG.blobB, open: toast('IELTS course — coming soon') },
+      { title: 'Preparation for TOEFL', rating: '4.9', img: IMG.blobC, open: toast('TOEFL course — 62% complete') }
+    ];
+    var qz = QUIZ[Math.min(s.qi, QUIZ.length - 1)];
+    var quizOpts = qz.opts.map(function (o, i) {
+      var picked = s.qPick !== null, isC = i === qz.correct, isP = i === s.qPick;
+      var bg = '#4B2FB5', fg = '#FFFFFF', bd = 'transparent', op = 1;
+      if (picked && isC) { bg = LIME; fg = INK; }
+      else if (picked && isP) { bg = '#B83A32'; }
+      else if (picked) { op = 0.4; }
+      return { label: o, style: 'min-height: 40px; padding: 0 16px; border-radius: 12px; border: 1px solid ' + bd + '; background: ' + bg + '; color: ' + fg + '; opacity: ' + op + '; font-size: 13px; font-weight: 600; transition: background .2s, opacity .2s',
+        pick: function () { if (self.state.qPick !== null) return; self.setState({ qPick: i, qScore: self.state.qScore + (isC ? 1 : 0) }); } };
+    });
+    var qRight = s.qPick === qz.correct;
+    var vidWords = VID_WORDS.map(function (vw) {
+      var on = isSaved(vw);
+      return { label: vw, saved: on, pick: function () { toggleSaved(vw); },
+        style: 'min-height: 36px; padding: 0 14px; border-radius: 999px; font-size: 13px; color: ' + (on ? INK : TEXT) + '; background: ' + (on ? LIME : 'var(--chip)') + '; border: 0; font-weight: 600; transition: background .2s' };
+    });
+
+    // ---------- AI ----------
+    var topicObj = TOPICS.filter(function (t) { return t.id === s.topic; })[0];
+    var topics = TOPICS.map(function (t) {
+      return { label: t.label, pick: function () {
+        self.setState({ ai: 'chat', topic: t.id, msgs: [{ from: 'ai', text: self.fill(SCRIPTS[t.id][0]) }], pos: 1, recording: false, typing: false, chatDone: false });
+      } };
+    });
+    var msgs = s.msgs.map(function (m) {
+      var ai = m.from === 'ai';
+      return { text: m.text,
+        rowStyle: 'display: flex; justify-content: ' + (ai ? 'flex-start' : 'flex-end'),
+        bubbleStyle: 'max-width: 80%; padding: 12px 14px; font-size: 14px; line-height: 1.5; border-radius: ' + (ai ? '18px 18px 18px 4px' : '18px 18px 4px 18px') + '; background: ' + (ai ? 'var(--card-a)' : 'rgba(189,242,136,0.18)') + '; border: 1px solid ' + (ai ? 'var(--chip)' : 'rgba(189,242,136,0.45)') + '; color: var(--text)' };
+    });
+    var mic = function () {
+      var st = self.state;
+      if (st.typing || st.chatDone) return;
+      if (!st.recording) { self.setState({ recording: true }); return; }
+      var script = SCRIPTS[st.topic];
+      var userLine = self.fill(script[st.pos]);
+      var next = st.pos + 1;
+      self.setState({ recording: false, typing: true, msgs: st.msgs.concat([{ from: 'user', text: userLine }]), pos: next });
+      self.later(function () {
+        var cur = self.state;
+        self.setState({ typing: false, msgs: cur.msgs.concat([{ from: 'ai', text: self.fill(script[next]) }]), pos: next + 1, chatDone: next + 1 >= script.length });
+      }, 1300);
+    };
+    var statusText = s.recording ? 'Listening…' : (s.typing ? 'Typing…' : 'Online');
+    var scores = [
+      { label: 'Pronunciation', level: 'Advanced', img: IMG.blobA, bar: 'width: 86%; height: 100%; background: ' + LIME + '; border-radius: 3px' },
+      { label: 'Vocabulary', level: 'Intermediate', img: IMG.blobB, bar: 'width: 58%; height: 100%; background: ' + LIME + '; border-radius: 3px' },
+      { label: 'Grammar', level: 'Advanced', img: IMG.blobC, bar: 'width: 80%; height: 100%; background: ' + LIME + '; border-radius: 3px' }
+    ];
+    var summaryText = 'You kept the conversation flowing and answered every question in full sentences. Your intonation sounded natural and confident. To improve, watch the “th” sound in words like “think” and “three”, and try linking ideas with phrases such as “on top of that” or “that’s why”.';
+
+    // ---------- profile ----------
+    var WEEK = [['M', 40], ['T', 70], ['W', 55], ['T', 90], ['F', 35], ['S', 100], ['S', 65]];
+    var week = WEEK.map(function (d, i) {
+      return { day: d[0], style: 'flex: 1; border-radius: 4px; height: ' + d[1] + '%; background: ' + (i === 5 ? ACC_T : 'var(--bar-soft)') };
+    });
+    var favorites = [
+      { title: 'Architecture and design', img: IMG.arch, open: function () { self.setState({ tab: 'home', homeView: 'article' }); } },
+      { title: 'Rachel’s 1st Paycheck', img: IMG.rachel, open: function () { self.setState({ tab: 'discover', discView: 'video' }); } },
+      { title: 'Videogames', img: IMG.games, open: demo }
+    ];
+
+    // ---------- nav ----------
+    var navStyle = function (t) { return 'color: ' + (s.tab === t ? ACC_T : MUTED); };
+    var goTab = function (t) { return function () { self.setState({ tab: t, word: null, homeView: t === 'home' && s.tab === 'home' ? 'feed' : self.state.homeView, discView: t === 'discover' && s.tab === 'discover' ? 'feed' : self.state.discView }); }; };
+
+    var isApp = s.screen === 'app';
+    var reg = s.authMode === 'register';
+    return {
+      isSplash: s.screen === 'splash', isAuth: s.screen === 'auth', isIntro: s.screen === 'intro', isOnb: s.screen === 'onb', isWelcome: s.screen === 'welcome', isApp: isApp,
+      name: s.name, onName: function (e) { self.setState({ name: e.target.value }); }, displayName: name, initial: name.charAt(0).toUpperCase(),
+      goSplash: set({ screen: 'splash' }),
+      goRegister: set({ screen: 'auth', authMode: 'register' }),
+      goSignin: set({ screen: 'auth', authMode: 'signin' }),
+      isRegister: reg,
+      authTitle: reg ? 'Create an account' : 'Welcome back',
+      authCta: reg ? 'Register' : 'Sign In',
+      authSwitchText: reg ? 'Already have an account?' : 'Don’t have an account?',
+      authSwitchCta: reg ? 'Sign In' : 'Register',
+      authSwitch: set({ authMode: reg ? 'signin' : 'register' }),
+      authSubmit: reg ? set({ screen: 'intro' }) : set({ screen: 'welcome', returning: true }),
+      startOnb: set({ screen: 'onb', step: 0 }),
+      step: step, opts: opts, optWrapStyle: optWrapStyle, progress: progress, stepLabel: (s.step + 1) + '/' + STEPS.length,
+      nextDisabled: !answered, nextLabel: s.step === STEPS.length - 1 ? 'Finish' : 'Next',
+      onbNext: function () { if (!answered) return; if (s.step < STEPS.length - 1) self.setState({ step: s.step + 1 }); else self.setState({ screen: 'welcome', returning: false }); },
+      onbBack: function () { if (s.step > 0) self.setState({ step: s.step - 1 }); else self.setState({ screen: 'intro' }); },
+      welcomeText: s.returning ? 'Welcome back, ' + name : 'Welcome ' + name + '!',
+      hasPlan: !s.returning && !!planText, planText: planText,
+      enterApp: set({ screen: 'app', tab: 'home', homeView: 'feed' }),
+
+      isHomeFeed: isApp && s.tab === 'home' && s.homeView === 'feed',
+      isArticle: isApp && s.tab === 'home' && s.homeView === 'article',
+      lessons: lessons, recs: recs, phrases: phrases,
+      closeArticle: set({ homeView: 'feed', word: null, speaking: false }),
+      openInhabit: openWord('inhabit'),
+      speaking: s.speaking, notSpeaking: !s.speaking,
+      toggleSpeak: function () { var on = !self.state.speaking; self.setState({ speaking: on }); if (on) self.later(function () { self.setState({ speaking: false }); }, 6000); },
+      para: para, articleWords: articleWords,
+      wordOpen: isApp && !!w, w: w || { ex: [] }, wordDe: s.wordDe,
+      closeWord: set({ word: null }),
+      toggleDe: function () { self.setState({ wordDe: !self.state.wordDe }); },
+      toggleSaveWord: function () { if (s.word) toggleSaved(WORDS[s.word].head); },
+
+      isDiscFeed: isApp && s.tab === 'discover' && s.discView === 'feed',
+      isVideo: isApp && s.tab === 'discover' && s.discView === 'video',
+      trending: trending, courses: courses,
+      podcastToast: toast('Off Menu — new episode every Wednesday'),
+      openVideo: set({ discView: 'video' }),
+      closeVideo: set({ discView: 'feed', playing: false }),
+      playing: s.playing, notPlaying: !s.playing, playLabel: s.playing ? 'Pause' : 'Play',
+      togglePlay: function () { self.setState({ playing: !self.state.playing }); },
+      progStyle: 'height: 100%; background: ' + LIME + '; border-radius: 2px; width: 24%; animation: prog 40s linear forwards; animation-play-state: ' + (s.playing ? 'running' : 'paused'),
+      quiz: qz, quizOpts: quizOpts, quizActive: !s.qDone, quizFinished: s.qDone, quizScore: s.qScore,
+      quizLabel: s.qDone ? 'Quiz' : 'Quiz ' + (s.qi + 1) + '/' + QUIZ.length,
+      quizScoreLabel: 'Score ' + s.qScore,
+      quizAnswered: s.qPick !== null,
+      feedbackText: qRight ? 'Correct!' : 'Not quite — it’s “' + qz.opts[qz.correct] + '”',
+      feedbackStyle: 'font-size: 13px; font-weight: 700; color: ' + (qRight ? ACC_T :'var(--danger)'),
+      quizNextLabel: s.qi < QUIZ.length - 1 ? 'Next' : 'Finish',
+      quizNext: function () { if (s.qi < QUIZ.length - 1) self.setState({ qi: s.qi + 1, qPick: null }); else self.setState({ qDone: true }); },
+      quizRetry: set({ qi: 0, qPick: null, qScore: 0, qDone: false }),
+      vidWords: vidWords,
+
+      isAI: isApp && s.tab === 'ai',
+      aiIntro: s.ai === 'intro', aiTopics: s.ai === 'topics', aiChat: s.ai === 'chat', aiDone: s.ai === 'done', aiSummary: s.ai === 'summary',
+      aiStart: set({ ai: 'topics' }), aiBackIntro: set({ ai: 'intro' }), aiBackTopics: set({ ai: 'topics', recording: false, typing: false }),
+      topics: topics, topicLabel: topicObj ? topicObj.label : '',
+      chatRef: function (el) { self._chat = el; },
+      msgs: msgs, typing: s.typing, recording: s.recording, notRecording: !s.recording,
+      chatOpen: !s.chatDone, chatDone: s.chatDone,
+      statusText: statusText, statusStyle: 'font-size: 12px; color: ' + (s.recording ? ACC_T : MUTED),
+      micHint: s.recording ? 'Speak now — tap again when you’re done' : (s.typing ? '' : 'Tap the mic and answer out loud'),
+      micLabel: s.recording ? 'Stop recording and send' : 'Start speaking',
+      micClass: s.recording ? 'mic-on' : '',
+      micStyle: 'width: 76px; height: 76px; border-radius: 50%; border: 0; display: flex; align-items: center; justify-content: center; color: ' + INK + '; background: ' + LIME + '; transition: transform .2s, opacity .2s; box-shadow: 0 0 0 8px rgba(189,242,136,0.15); opacity: ' + (s.typing ? 0.45 : 1),
+      mic: mic,
+      typeToast: toast('Keyboard mode — coming soon'), settingsToast: toast('Settings: speed, accent, difficulty'),
+      aiToDone: set({ ai: 'done' }), aiToSummary: set({ ai: 'summary' }),
+      aiFinish: function () { self.setState({ ai: 'intro', msgs: [], chatDone: false }); self.showToast('Great job! +1 lesson done'); },
+      scores: scores, summaryText: summaryText,
+
+      isProfile: isApp && s.tab === 'profile',
+      phrasesLearned: 350 + s.saved.length - 5,
+      week: week, favorites: favorites,
+      savedWords: s.saved.map(function (x) { return { label: x }; }), savedCount: s.saved.length,
+      dark: s.dark, toggleDark: function () { var d = !self.state.dark; self.setState({ dark: d }); self.showToast(d ? 'Dark mode on' : 'Light mode on'); },
+      rootClass: s.dark ? 'ais' : 'ais light',
+      themeIcon: s.dark ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: function () { self.setState({ dark: !self.state.dark }); },
+      isDarkTheme: s.dark, isLightTheme: !s.dark,
+      switchTrack: 'width: 44px; height: 26px; border-radius: 13px; position: relative; transition: background .2s; background: ' + (s.dark ? LIME : 'var(--line-strong)'),
+      switchKnob: 'position: absolute; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: ' + INK + '; transition: left .2s; left: ' + (s.dark ? '21px' : '3px'),
+      editToast: toast('Edit profile — coming soon'), faqToast: toast('FAQ — coming soon'), aboutToast: toast('AISpeak · portfolio prototype'),
+      logout: set({ screen: 'splash', tab: 'home', homeView: 'feed', ai: 'intro', discView: 'feed' }),
+
+      showNav: isApp,
+      tabHome: goTab('home'), tabDiscover: goTab('discover'), tabAI: goTab('ai'), tabProfile: goTab('profile'),
+      navHome: navStyle('home'), navDiscover: navStyle('discover'), navAI: navStyle('ai'), navProfile: navStyle('profile'),
+      curHome: s.tab === 'home' ? 'page' : 'false', curDiscover: s.tab === 'discover' ? 'page' : 'false', curAI: s.tab === 'ai' ? 'page' : 'false', curProfile: s.tab === 'profile' ? 'page' : 'false',
+
+      toastOn: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+
+</script>
+<script>
+(function () {
+  var phone = document.getElementById('phone');
+  function fit() {
+    var w = window.innerWidth, h = window.innerHeight;
+    var mobile = w < 500 || (w <= 420 && h <= 900);
+    document.body.classList.toggle('fit-mobile', mobile);
+    var s = mobile ? Math.min(w / 390, h / 844) : Math.min(1, (w - 32) / 390, (h - 32) / 844);
+    phone.style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit); fit();
+  mountDC(Component, document.getElementById('dc-tpl'), phone, {});
+})();
+</script>
+</body>
+</html>
